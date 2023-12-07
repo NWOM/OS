@@ -50,3 +50,4 @@ Process   Burst Time   Waiting Time   Turnaround Time
 3		7		14		21
 Average waiting time = 6.67
 Average turnaround time = 13.67
+*/
