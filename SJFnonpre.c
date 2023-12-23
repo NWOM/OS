@@ -1,53 +1,68 @@
 #include <stdio.h>
 
-void findWaitingTime(int processes[], int n, int bt[], int wt[]) {
-    wt[0] = 0;
+struct Process {
+    int processID;
+    int burstTime;
+};
 
+void swap(struct Process *xp, struct Process *yp) {
+    struct Process temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+void sortProcesses(struct Process processes[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (processes[j].burstTime > processes[j + 1].burstTime) {
+                swap(&processes[j], &processes[j + 1]);
+            }
+        }
+    }
+}
+
+void findWaitingTime(struct Process processes[], int n, int waitingTime[]) {
+    waitingTime[0] = 0;
     for (int i = 1; i < n; i++) {
-        wt[i] = bt[i - 1] + wt[i - 1];
+        waitingTime[i] = waitingTime[i - 1] + processes[i - 1].burstTime;
     }
 }
 
-void findTurnAroundTime(int processes[], int n, int bt[], int wt[], int tat[]) {
+void findTurnAroundTime(struct Process processes[], int n, int waitingTime[], int turnAroundTime[]) {
     for (int i = 0; i < n; i++) {
-        tat[i] = bt[i] + wt[i];
+        turnAroundTime[i] = processes[i].burstTime + waitingTime[i];
     }
 }
 
-void findAvgTime(int processes[], int n, int bt[]) {
-    int wt[n], tat[n], total_wt = 0, total_tat = 0;
+void findAverageTime(struct Process processes[], int n) {
+    int waitingTime[n], turnAroundTime[n];
+    float totalWaitingTime = 0, totalTurnAroundTime = 0;
 
-    findWaitingTime(processes, n, bt, wt);
-    findTurnAroundTime(processes, n, bt, wt, tat);
+    sortProcesses(processes, n);
 
-    printf("Process   Burst Time   Waiting Time   Turnaround Time\n");
+    findWaitingTime(processes, n, waitingTime);
+
+    findTurnAroundTime(processes, n, waitingTime, turnAroundTime);
+
+    printf("Process ID\tBurst Time\tWaiting Time\tTurnaround Time\n");
 
     for (int i = 0; i < n; i++) {
-        total_wt += wt[i];
-        total_tat += tat[i];
-        printf("%d\t\t%d\t\t%d\t\t%d\n", i + 1, bt[i], wt[i], tat[i]);
+        totalWaitingTime += waitingTime[i];
+        totalTurnAroundTime += turnAroundTime[i];
+
+        printf("%d\t\t%d\t\t%d\t\t%d\n", processes[i].processID, processes[i].burstTime,
+               waitingTime[i], turnAroundTime[i]);
     }
 
-    printf("Average waiting time = %.2f\n", (float)total_wt / (float)n);
-    printf("Average turnaround time = %.2f\n", (float)total_tat / (float)n);
+    printf("Average waiting time: %.2f\n", totalWaitingTime / n);
+    printf("Average turnaround time: %.2f\n", totalTurnAroundTime / n);
 }
 
 int main() {
-    int processes[] = {1, 2, 3};
+    struct Process processes[] = { {1, 6}, {2, 8}, {3, 7}, {4, 3} };
     int n = sizeof(processes) / sizeof(processes[0]);
 
-    int burst_time[] = {6, 8, 7};
-
-    findAvgTime(processes, n, burst_time);
+    findAverageTime(processes, n);
 
     return 0;
 }
-/*OUTPUT
-/tmp/DCuu1kvGrg.o
-Process   Burst Time   Waiting Time   Turnaround Time
-1		6		0		6
-2		8		6		14
-3		7		14		21
-Average waiting time = 6.67
-Average turnaround time = 13.67
-*/
