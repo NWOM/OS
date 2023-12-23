@@ -1,5 +1,5 @@
 #include<stdio.h>
-
+//IT MAY BE ALSO CALLED SRTF , SJF WITH PRE EMPTION
 void findWaitingTime(int processes[], int n, int bt[], int wt[]) {
     int rt[n];
     for (int i = 0; i < n; i++)
